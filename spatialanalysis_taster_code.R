@@ -13,7 +13,6 @@ library(spdep)
 
 
 
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #30 SECOND PIPE OPERATOR PRIMER---- 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -202,6 +201,8 @@ priceSummary <- sales %>%
   group_by(year,wardcode) %>%
   summarise(meanprice = mean(price), medianprice = median(price), count = n(), ttwa = max(ttwa))
 
+
+
 employment <- read_csv('data/percentEmployedByWard2001n2011.csv')
 
 #year in its own column
@@ -243,6 +244,9 @@ abline(city.model)
 
 #2: ADDING A WEIGHTS MATRIX TO THE REGRESSION
 
+
+
+#WE NEED THE WARDS SPATIAL DATA TO GET A NEIGHBOUR LIST
 #First, get ward spatial file
 wards.spatial <- st_read('data/England_wa_1991/england_wa_1991.shp')
 
@@ -257,7 +261,8 @@ city.wards <- wards.spatial %>% filter(wards.spatial$label %in% avpriceplusemp.c
 #check visually
 plot(st_geometry(city.wards))
 
-#Merge in the data so we know it's matching against the correct ward names
+#MERGE HOUSE PRICE / EMPLOYMENT DATA TO SPATIAL FILE
+#JUST TO GUARANTEE WARDS MATCH CORRECTLY
 city.wards <- merge(city.wards, avpriceplusemp.city, by.x = 'label', by.y = 'wardcode')
 View(city.wards)
 
@@ -277,13 +282,13 @@ look.at.this.ward <- 30
 neighbours[[look.at.this.ward]]
 
 #So e.g.
-plot(city.wards)
+#plot(city.wards)
 plot(city.wards[look.at.this.ward,], add=T, col='RED')
 plot(city.wards[neighbours[[look.at.this.ward]],], add=T, col='BLUE')
 
 
 #GET THE CONTIGUITY MATRIX
-#Row-normalised
+#Row-normalised BY DEFAULT
 contiguity.matrix <- nb2mat(neighbours)
 #mx <- nb2mat(contiguity.matrix, zero.policy = T)#sometimes need this if neighbours are missing
 
@@ -293,6 +298,8 @@ apply(contiguity.matrix,1,sum)
 
 
 #GET SPATIAL LAG VALUES
+#MULTIPLY CONTIG MATRIX BY PERCENT EMPLOYED
+#TO GET AVERAGE EMPLOYMENT IN NEIGHBOURING ZONES
 spatial.lag <- contiguity.matrix %*% city.wards$percentEmployed
 
 #JUST TO SHOW IT'S FINDING THE AVERAGE OF NEIGHBOURING ZONES
