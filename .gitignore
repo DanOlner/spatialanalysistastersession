@@ -1,0 +1,11 @@
+/docs/*
+*/cuttinz/*
+/.Rproj.user/*
+.Rhistory
+.Rproj.user
+.RData
+*.Rproj
+tastersession_SPATIALANALYSIS_2019.pptx
+*.docx
+*.pptx
+*.tmp
