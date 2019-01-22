@@ -7,7 +7,7 @@
 library(tidyverse)
 library(lubridate)
 library(raster)
-library(sf)
+library(sf)#SIMPLE FEATURES LIBRARY, DOING ALL THE SPATIAL HEAVY LIFTING
 library(tmap)
 library(spdep)
 
@@ -28,7 +28,7 @@ sqrt(100)
   sqrt %>%
   log10
 
-
+#... as we'll see below.
 
 
 
@@ -39,7 +39,7 @@ sqrt(100)
 #NOT SHOWING POSTCODE / MERGING WORKING OUT HERE...
 
 #LOAD IN DATAFRAME OF GEOCODED HOUSE PRICES
-#MERGING AND GEOCODING DONE ELSEWHERE
+#I'VE DONE MERGING AND GEOCODING ELSEWHERE
 #Nearly seven million sales 1995-2017
 #Includes a label for travel to work areas (TTWAs)
 #Half a GB in memory
@@ -272,6 +272,7 @@ View(city.wards)
 city.wards <- as_Spatial(city.wards)
 
 #https://cran.r-project.org/web/packages/spdep/vignettes/nb.pdf
+#GIVES US A NEIGHBOUR LIST FOR EVERY WARD
 neighbours <- poly2nb(city.wards)
 
 #NOT A MATRIX YET
@@ -333,7 +334,9 @@ summary(city.model)
 #let's use Moran's I to check on the spatial autocorrelation
 #for the different housing types per grid square above.
 
-
+#WHEN COUNTING TYPE PER GRID SQUARE
+#ALSO COUNT ZEROS SO WE HAVE THE SAME SPATIAL LAYOUT FOR EACH TYPE
+#AND CAN INCLUDE ZEROS IN MORANS I.
 #First thing: to be able to compare, we need to include grid squares with zero counts.
 #By default, dplyr's summarise drops these.
 #We can use "complete" to add back in those values
@@ -366,8 +369,8 @@ View(count.of.type.moran@data)
 
 
 
-#We only need the matrix for one type, we can use that for all of them
-
+#BECAUSE THE GEOGRAPHY REPEATS,
+#GET NEIGHBOURS LIST ONLY FOR ONE OF THEM
 #https://cran.r-project.org/web/packages/spdep/vignettes/nb.pdf
 neighbours <- poly2nb(count.of.type.moran[count.of.type.moran$type=='flat',])
 
